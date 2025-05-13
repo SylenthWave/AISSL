@@ -2,8 +2,8 @@ name: 证书哈希值自动更新
 
 on:
   schedule:
-    # 每天北京时间上午8点运行 (UTC+8)，对应UTC时间0点
-    - cron: '0 0 * * *'
+    # 每天北京时间晚上00:01运行 (UTC+8)，对应UTC时间 16:01
+    - cron: '1 16 * * *'
   # 也允许手动触发工作流
   workflow_dispatch:
 
