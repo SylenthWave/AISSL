@@ -7,6 +7,10 @@ on:
   # 也允许手动触发工作流
   workflow_dispatch:
 
+# 添加权限配置
+permissions:
+  contents: write
+
 jobs:
   update-cert-hashes:
     runs-on: ubuntu-latest
@@ -37,7 +41,5 @@ jobs:
           git diff --staged --quiet || git commit -m "自动更新API证书哈希值"
           
       - name: 推送更改
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }} 
+        # 使用内置的git命令而不是第三方action
+        run: git push 
