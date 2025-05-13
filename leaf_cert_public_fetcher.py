@@ -8,6 +8,16 @@ import urllib.parse
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+from cryptography.hazmat.primitives.asymmetric import rsa, ec
+
+def get_ios_style_ec_public_key_bytes(public_key):
+    if isinstance(public_key, ec.EllipticCurvePublicKey):
+        return public_key.public_bytes(
+            Encoding.X962,  # 重点：X9.62 表示 raw ECPoint 格式（iOS返回值相同）
+            PublicFormat.UncompressedPoint
+        )
+    else:
+        return public_key.public_bytes(Encoding.DER, PublicFormat.PKCS1) 
 
 def get_leaf_cert_public_key_hash(url, port=443):
     # 从 URL 中提取主机名
@@ -27,7 +37,7 @@ def get_leaf_cert_public_key_hash(url, port=443):
     public_key = cert.public_key()
 
     # 获取公钥二进制数据（DER 格式）
-    public_bytes = public_key.public_bytes(Encoding.DER, PublicFormat.PKCS1)
+    public_bytes = get_ios_style_ec_public_key_bytes(public_key)
 
     # 计算 SHA256
     sha256_hash = hashlib.sha256(public_bytes).digest()
@@ -73,7 +83,8 @@ def main():
     api_urls = [
         "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
         "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
-        "https://api.openai.com/v1/chat/completions"
+        "https://api.openai.com/v1/chat/completions",
+        "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
     ]
     
     for url in api_urls:
